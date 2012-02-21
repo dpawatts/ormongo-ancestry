@@ -5,13 +5,13 @@ namespace Ormongo.Ancestry.Tests
 	public abstract class AncestryTestsBase : TestsBase
 	{
 		[SetUp]
-		public void SetUp()
+		public virtual void SetUp()
 		{
 			TreeNode.OrphanStrategy = OrphanStrategy.Destroy;
 		}
 
 		[TearDown]
-		public void TearDown()
+		public virtual void TearDown()
 		{
 			TreeNode.Drop();
 		}

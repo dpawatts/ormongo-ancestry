@@ -520,6 +520,21 @@ namespace Ormongo.Ancestry.Tests
 			Assert.That(TreeNode.FindOneByID(grandChildNode.ID).Parent, Is.Null);
 		}
 
+		[Test]
+		public void DepthIsCached()
+		{
+			// Arrange.
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode = CreateTreeNode(rootNode, "Child1");
+			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
+
+			// Act.
+			var retrievedNode = TreeNode.FindAll().Single(d => d.AncestryDepth == 2);
+
+			// Assert.
+			Assert.That(retrievedNode.ID, Is.EqualTo(grandChildNode.ID));
+		}
+
 		#endregion
 
 		#region Inheritance

@@ -30,6 +30,8 @@ namespace Ormongo.Ancestry
 		protected string AncestryWas { get; private set; }
 		protected bool AncestryChanged { get; private set; }
 
+		#region Persisted
+
 		public string Ancestry
 		{
 			get { return _ancestry; }
@@ -39,6 +41,10 @@ namespace Ormongo.Ancestry
 				AncestryChanged = true;
 			}
 		}
+
+		public int AncestryDepth { get; set; }
+
+		#endregion
 
 		/// <summary>
 		/// The ancestry value for this record's children
@@ -226,6 +232,8 @@ namespace Ormongo.Ancestry
 		protected override void OnBeforeSave()
 		{
 			UpdateDescendantsWithNewAncestry();
+			if (CacheDepth)
+				AncestryDepth = Depth;
 			base.OnBeforeSave();
 		}
 
