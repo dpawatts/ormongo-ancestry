@@ -5,12 +5,6 @@ namespace Ormongo.Ancestry.Tests
 {
 	public class AncestryExtensionsTests : AncestryTestsBase
 	{
-		public override void TearDown()
-		{
-			TreeNode.CacheDepth = false;
-			base.TearDown();
-		}
-
 		[Test]
 		public void Roots()
 		{
@@ -78,6 +72,24 @@ namespace Ormongo.Ancestry.Tests
 		}
 
 		[Test]
+		public void BeforeRelativeDepth()
+		{
+			// Arrange.
+			TreeNode.CacheDepth = true;
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode = CreateTreeNode(rootNode, "Child");
+			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
+			CreateTreeNode(grandChildNode, "GreatGrandChild");
+
+			// Act.
+			var result = childNode.Descendants.BeforeRelativeDepth(2).ToList();
+
+			// Assert.
+			Assert.That(result, Has.Count.EqualTo(1));
+			Assert.That(result[0].ID, Is.EqualTo(grandChildNode.ID));
+		}
+
+		[Test]
 		public void ToDepth()
 		{
 			// Arrange.
@@ -94,6 +106,25 @@ namespace Ormongo.Ancestry.Tests
 			Assert.That(result[0].ID, Is.EqualTo(rootNode.ID));
 			Assert.That(result[1].ID, Is.EqualTo(childNode.ID));
 			Assert.That(result[2].ID, Is.EqualTo(grandChildNode.ID));
+		}
+
+		[Test]
+		public void ToRelativeDepth()
+		{
+			// Arrange.
+			TreeNode.CacheDepth = true;
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode = CreateTreeNode(rootNode, "Child");
+			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
+			var greatGrandChildNode = CreateTreeNode(grandChildNode, "GreatGrandChild");
+
+			// Act.
+			var result = childNode.Descendants.ToRelativeDepth(2).ToList();
+
+			// Assert.
+			Assert.That(result, Has.Count.EqualTo(2));
+			Assert.That(result[0].ID, Is.EqualTo(grandChildNode.ID));
+			Assert.That(result[1].ID, Is.EqualTo(greatGrandChildNode.ID));
 		}
 
 		[Test]
@@ -116,6 +147,26 @@ namespace Ormongo.Ancestry.Tests
 		}
 
 		[Test]
+		public void AtRelativeDepth()
+		{
+			// Arrange.
+			TreeNode.CacheDepth = true;
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode = CreateTreeNode(rootNode, "Child");
+			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
+			var greatGrandChildNode1 = CreateTreeNode(grandChildNode, "GreatGrandChild1");
+			var greatGrandChildNode2 = CreateTreeNode(grandChildNode, "GreatGrandChild2");
+
+			// Act.
+			var result = childNode.Descendants.AtRelativeDepth(2).ToList();
+
+			// Assert.
+			Assert.That(result, Has.Count.EqualTo(2));
+			Assert.That(result[0].ID, Is.EqualTo(greatGrandChildNode1.ID));
+			Assert.That(result[1].ID, Is.EqualTo(greatGrandChildNode2.ID));
+		}
+
+		[Test]
 		public void FromDepth()
 		{
 			// Arrange.
@@ -134,6 +185,25 @@ namespace Ormongo.Ancestry.Tests
 		}
 
 		[Test]
+		public void FromRelativeDepth()
+		{
+			// Arrange.
+			TreeNode.CacheDepth = true;
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode = CreateTreeNode(rootNode, "Child");
+			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
+			var greatGrandChildNode = CreateTreeNode(grandChildNode, "GreatGrandChild");
+
+			// Act.
+			var result = childNode.Descendants.FromRelativeDepth(1).ToList();
+
+			// Assert.
+			Assert.That(result, Has.Count.EqualTo(2));
+			Assert.That(result[0].ID, Is.EqualTo(grandChildNode.ID));
+			Assert.That(result[1].ID, Is.EqualTo(greatGrandChildNode.ID));
+		}
+
+		[Test]
 		public void AfterDepth()
 		{
 			// Arrange.
@@ -148,6 +218,24 @@ namespace Ormongo.Ancestry.Tests
 			// Assert.
 			Assert.That(result, Has.Count.EqualTo(1));
 			Assert.That(result[0].ID, Is.EqualTo(grandChildNode.ID));
+		}
+
+		[Test]
+		public void AfterRelativeDepth()
+		{
+			// Arrange.
+			TreeNode.CacheDepth = true;
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode = CreateTreeNode(rootNode, "Child");
+			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
+			var greatGrandChildNode = CreateTreeNode(grandChildNode, "GreatGrandChild");
+
+			// Act.
+			var result = childNode.Descendants.AfterRelativeDepth(1).ToList();
+
+			// Assert.
+			Assert.That(result, Has.Count.EqualTo(1));
+			Assert.That(result[0].ID, Is.EqualTo(greatGrandChildNode.ID));
 		}
 	}
 }

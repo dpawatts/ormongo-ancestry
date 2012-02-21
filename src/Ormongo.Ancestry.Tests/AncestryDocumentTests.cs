@@ -524,6 +524,7 @@ namespace Ormongo.Ancestry.Tests
 		public void DepthIsCached()
 		{
 			// Arrange.
+			TreeNode.CacheDepth = true;
 			var rootNode = CreateTreeNode(null, "Root");
 			var childNode = CreateTreeNode(rootNode, "Child1");
 			var grandChildNode = CreateTreeNode(childNode, "GrandChild");

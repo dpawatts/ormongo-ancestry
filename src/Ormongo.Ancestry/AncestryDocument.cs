@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Ormongo.Ancestry.Internal;
 
 namespace Ormongo.Ancestry
 {
@@ -70,9 +71,9 @@ namespace Ormongo.Ancestry
 			get { return (string.IsNullOrEmpty(Ancestry)) ? new List<ObjectId>() : Ancestry.Split('/').Select(ObjectId.Parse); }
 		}
 
-		public IQueryable<T> Ancestors
+		public IDepthQueryable<T> Ancestors
 		{
-			get { return Find(d => AncestorIDs.Contains(d.ID)); }
+			get { return new DepthQueryable<T>(Find(d => AncestorIDs.Contains(d.ID)), Depth); }
 		}
 
 		public IEnumerable<ObjectId> AncestorsAndSelfIDs
@@ -80,9 +81,9 @@ namespace Ormongo.Ancestry
 			get { return AncestorIDs.Union(new[] { ID }); }
 		}
 
-		public IQueryable<T> AncestorsAndSelf
+		public IDepthQueryable<T> AncestorsAndSelf
 		{
-			get { return Find(d => AncestorsAndSelfIDs.Contains(d.ID)); }
+			get { return new DepthQueryable<T>(Find(d => AncestorsAndSelfIDs.Contains(d.ID)), Depth); }
 		}
 
 		public int Depth
@@ -199,9 +200,9 @@ namespace Ormongo.Ancestry
 
 		#region Descendants
 
-		public IEnumerable<T> DescendantsAndSelf
+		public IDepthQueryable<T> DescendantsAndSelf
 		{
-			get { return Find(d => d.ID == ID || d.Ancestry.StartsWith(ChildAncestry) || d.Ancestry == ChildAncestry); }
+			get { return new DepthQueryable<T>(Find(d => d.ID == ID || d.Ancestry.StartsWith(ChildAncestry) || d.Ancestry == ChildAncestry), Depth); }
 		}
 
 		public IEnumerable<ObjectId> DescendantsAndSelfIDs
@@ -209,9 +210,9 @@ namespace Ormongo.Ancestry
 			get { return DescendantsAndSelf.Select(d => d.ID); }
 		}
 
-		public IEnumerable<T> Descendants
+		public IDepthQueryable<T> Descendants
 		{
-			get { return Find(d => d.Ancestry.StartsWith(ChildAncestry) || d.Ancestry == ChildAncestry); }
+			get { return new DepthQueryable<T>(Find(d => d.Ancestry.StartsWith(ChildAncestry) || d.Ancestry == ChildAncestry), Depth); }
 		}
 
 		public IEnumerable<ObjectId> DescendantIDs

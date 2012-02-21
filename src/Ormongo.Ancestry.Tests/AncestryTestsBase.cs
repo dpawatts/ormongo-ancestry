@@ -8,6 +8,7 @@ namespace Ormongo.Ancestry.Tests
 		public virtual void SetUp()
 		{
 			TreeNode.OrphanStrategy = OrphanStrategy.Destroy;
+			TreeNode.CacheDepth = false;
 		}
 
 		[TearDown]
