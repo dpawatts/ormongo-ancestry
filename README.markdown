@@ -70,9 +70,9 @@ To navigate an Ancestry model, use the following methods on any instance / recor
     HasSiblings             Returns true if the record's parent has more than one child
     IsOnlyChild             Returns true if the record is the only child of its parent
     Descendants             Scopes the model on direct and indirect children of the record
-    DescendantIDs           Returns a list of a descendant ids
+    DescendantIDs           Returns a list of a descendant IDs
     DescendantsAndSelf      Scopes the model on descendants and itself
-    DescendantsAndSelfIDs   Returns a list of all ids in the record's subtree
+    DescendantsAndSelfIDs   Returns a list of all IDs in the record's descendants and itself
     Depth                   Return the depth of the node, root nodes are at depth 0
 
 ## Options for Ancestry
@@ -106,7 +106,7 @@ checked for existence. For example:
     node.Subtree.OrderByDescending(n => n.Name).Take(10)
     node.Descendants.Count()
 
-For convenience, a couple of `IQueryable` extension methods are included:
+For convenience, a few `IQueryable` extension methods are included:
 
     Roots()                 Root nodes
     AncestorsOf(node)       Ancestors of node, node can be either a record or an ID
@@ -117,7 +117,7 @@ For convenience, a couple of `IQueryable` extension methods are included:
 
 ## Selecting nodes by depth
 
-When depth caching is enabled (see "Options for Ancestry"), five more named finders can be used to select nodes on their depth:
+When depth caching is enabled (see "Options for Ancestry"), five more `IQueryable` extension methods can be used to select nodes on their depth:
 
     BeforeDepth(depth)     Return nodes that are less deep than depth (node.depth < depth)
     ToDepth(depth)         Return nodes up to a certain depth (node.depth <= depth)
@@ -125,33 +125,52 @@ When depth caching is enabled (see "Options for Ancestry"), five more named find
     FromDepth(depth)       Return nodes starting from a certain depth (node.depth >= depth)
     AfterDepth(depth)      Return nodes that are deeper than depth (node.depth > depth)
 
-The depth finders are also available through calls to `Descendants`, `DescendantIDs`, `Subtree`, `SubtreeIDs`, `AncestorsAndSelf` and `Ancestors`. 
+The depth finders are also available through calls to `Descendants`, `DescendantIDs`, `DescendantsAndSelf`, `DescendantsAndSelfIDs`, `AncestorsAndSelf` and `Ancestors`. 
 In this case, depth values are interpreted relatively. Some examples:
 
-    node.Subtree(toDepth: 2)              Subtree of node, to a depth of node.depth + 2 (self, children and grandchildren)
-    node.Subtree.ToDepth(5)               Subtree of node to an absolute depth of 5
-    node.Descendants(atDepth: 2)          Descendant of node, at depth node.depth + 2 (grandchildren)
-    node.Descendants.AtDepth(10)          Descendants of node at an absolute depth of 10
-    node.Ancestors.ToDepth(3)             The oldest 4 ancestors of node (its root and 3 more)
-    node.AncestorsAndSelf(fromDepth: -2)  The node's grandparent, parent and the node itself
+    node.Subtree.ToRelativeDepth(2)              Subtree of node, to a depth of node.depth + 2 (self, children and grandchildren)
+    node.Subtree.ToDepth(5)                      Subtree of node to an absolute depth of 5
+    node.Descendants.AtRelativeDepth(2)          Descendant of node, at depth node.depth + 2 (grandchildren)
+    node.Descendants.AtDepth(10)                 Descendants of node at an absolute depth of 10
+    node.Ancestors.ToDepth(3)                    The oldest 4 ancestors of node (its root and 3 more)
+    node.AncestorsAndSelf.FromRelativeDepth(-2)  The node's grandparent, parent and the node itself
 
-    node.Ancestors(:from_depth => -6, :to_depth => -4)
-    node.path.from_depth(3).to_depth(4)
-    node.descendants(:from_depth => 2, :to_depth => 4)
-    node.subtree.from_depth(10).to_depth(12)
+    node.Ancestors.FromRelativeDepth(-6).ToRelativeDepth(-4)
+    node.AncestorsAndSelf.FromDepth(3).ToDepth(4)
+    node.Descendants.FromRelativeDepth(2).ToRelativeDepth(4)
+    node.DescendantsAndSelf.FromDepth(10).ToDepth(12)
 
-Please note that depth constraints cannot be passed to `ancestor_ids` and `path_ids`. The reason for this is that
+Please note that depth constraints cannot be passed to `AncestorIDs` and `AncestorAndSelfIDs`. The reason for this is that
 both these relations can be fetched directly from the ancestry column without performing a database query. It would
 require an entirely different method of applying the depth constraints which isn't worth the effort of implementing.
-You can use `ancestors(depth_options).map(&:id)` or `ancestor_ids.slice(min_depth..max_depth)` instead.
 
 ## Ordering
 
+To enable ordering of tree nodes, inherit from `OrderedAncestryDocument`. This will add a `Position` field to your document
+and provide additional utility methods:
 
+    node.LowerSiblings
+    node.HigherSiblings
+    node.LowestSibling
+    node.HighestSibling
+    
+    node.MoveUp()
+    node.MoveDown()
+    node.MoveToTop()
+    node.MoveToBottom()
+    node.MoveAbove(other)
+    node.MoveBelow(other)
+    
+    node.AtTop
+    node.AtBottom
+
+Mongoid-Ancestry will manage the `Position` field automatically. If you delete a node, or move it to a different part of the tree,
+its previous siblings will be moved up, if necessary. When you create a node and don't set its position, it will be assigned 
+a default position.
 
 ## Tests
 
-Ormongo-Ancestry includes a NUnit test suite consisting of about 40 tests.
+Ormongo-Ancestry includes a NUnit test suite consisting of about 60 tests.
 
 ## Internals
 
@@ -167,6 +186,8 @@ with a large number of records, please drop me line.
 
 It's a fork of [Mongoid-Ancestry](https://github.com/skyeagle/mongoid-ancestry) - which in turn is a port of 
 [ancestry](https://github.com/stefankroes/ancestry) - but ported to C# and adapted to work with Ormongo.
+
+The ordering functionality is ported from [Mongoid Tree](https://github.com/benedikt/mongoid-tree).
 
 All thanks should goes to Stefan Kroes and Anton Orel for their great work.
 

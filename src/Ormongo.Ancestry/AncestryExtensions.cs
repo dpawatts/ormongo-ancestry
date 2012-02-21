@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Ormongo.Ancestry.Internal;
 
 namespace Ormongo.Ancestry
 {
@@ -18,10 +19,10 @@ namespace Ormongo.Ancestry
 			return items.Where(d => d.AncestryDepth < depth);
 		}
 
-		public static IQueryable<T> BeforeRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
+		public static IDepthQueryable<T> BeforeRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
 			where T : AncestryDocument<T>
 		{
-			return items.BeforeDepth(items.Depth + relativeDepth);
+			return new DepthQueryable<T>(items.BeforeDepth(items.Depth + relativeDepth), items.Depth);
 		}
 
 		public static IQueryable<T> ToDepth<T>(this IQueryable<T> items, int depth)
@@ -31,10 +32,10 @@ namespace Ormongo.Ancestry
 			return items.Where(d => d.AncestryDepth <= depth);
 		}
 
-		public static IQueryable<T> ToRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
+		public static IDepthQueryable<T> ToRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
 			where T : AncestryDocument<T>
 		{
-			return items.ToDepth(items.Depth + relativeDepth);
+			return new DepthQueryable<T>(items.ToDepth(items.Depth + relativeDepth), items.Depth);
 		}
 
 		public static IQueryable<T> AtDepth<T>(this IQueryable<T> items, int depth)
@@ -44,10 +45,10 @@ namespace Ormongo.Ancestry
 			return items.Where(d => d.AncestryDepth == depth);
 		}
 
-		public static IQueryable<T> AtRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
+		public static IDepthQueryable<T> AtRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
 			where T : AncestryDocument<T>
 		{
-			return items.AtDepth(items.Depth + relativeDepth);
+			return new DepthQueryable<T>(items.AtDepth(items.Depth + relativeDepth), items.Depth);
 		}
 
 		public static IQueryable<T> FromDepth<T>(this IQueryable<T> items, int depth)
@@ -57,10 +58,10 @@ namespace Ormongo.Ancestry
 			return items.Where(d => d.AncestryDepth >= depth);
 		}
 
-		public static IQueryable<T> FromRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
+		public static IDepthQueryable<T> FromRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
 			where T : AncestryDocument<T>
 		{
-			return items.FromDepth(items.Depth + relativeDepth);
+			return new DepthQueryable<T>(items.FromDepth(items.Depth + relativeDepth), items.Depth);
 		}
 
 		public static IQueryable<T> AfterDepth<T>(this IQueryable<T> items, int depth)
@@ -70,10 +71,10 @@ namespace Ormongo.Ancestry
 			return items.Where(d => d.AncestryDepth > depth);
 		}
 
-		public static IQueryable<T> AfterRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
+		public static IDepthQueryable<T> AfterRelativeDepth<T>(this IDepthQueryable<T> items, int relativeDepth)
 			where T : AncestryDocument<T>
 		{
-			return items.AfterDepth(items.Depth + relativeDepth);
+			return new DepthQueryable<T>(items.AfterDepth(items.Depth + relativeDepth), items.Depth);
 		}
 
 		private static void ValidateDepthCaching<T>() 
@@ -82,12 +83,5 @@ namespace Ormongo.Ancestry
 			if (!AncestryDocument<T>.CacheDepth)
 				throw new Exception("Depth queries are only available when depth caching is enabled.");
 		}
-
-		// scope :ancestors_of, lambda { |object| where(to_node(object).ancestor_conditions) }
-
-		//public static IQueryable<T> AncestorsOf(T item)
-		//{
-		//    return Document<T>.Find(i => item.Ancestry.AncestorIDs.Contains(i.ID));
-		//}
 	}
 }

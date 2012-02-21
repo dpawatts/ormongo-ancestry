@@ -237,5 +237,44 @@ namespace Ormongo.Ancestry.Tests
 			Assert.That(result, Has.Count.EqualTo(1));
 			Assert.That(result[0].ID, Is.EqualTo(greatGrandChildNode.ID));
 		}
+
+		[Test]
+		public void RelativeDepthExtensionMethodsCanBeCombined()
+		{
+			// Arrange.
+			TreeNode.CacheDepth = true;
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode = CreateTreeNode(rootNode, "Child");
+			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
+			var greatGrandChildNode = CreateTreeNode(grandChildNode, "GreatGrandChild");
+
+			// Act.
+			var result = childNode.Descendants.FromRelativeDepth(1).ToRelativeDepth(2).ToList();
+
+			// Assert.
+			Assert.That(result, Has.Count.EqualTo(2));
+			Assert.That(result[0].ID, Is.EqualTo(grandChildNode.ID));
+			Assert.That(result[1].ID, Is.EqualTo(greatGrandChildNode.ID));
+		}
+
+		[Test]
+		public void AllRelativeDepthExtensionMethodsCanBeCombined()
+		{
+			// Arrange.
+			TreeNode.CacheDepth = true;
+			var rootNode = CreateTreeNode(null, "Root");
+
+			// Act.
+			var result = rootNode.Descendants
+				.BeforeRelativeDepth(1)
+				.ToRelativeDepth(1)
+				.AtRelativeDepth(1)
+				.FromRelativeDepth(1)
+				.AfterRelativeDepth(2)
+				.ToList();
+
+			// Assert.
+			Assert.That(result, Has.Count.EqualTo(0));
+		}
 	}
 }
