@@ -15,7 +15,7 @@ To apply Ormongo-Ancestry to any Ormongo model, follow these simple steps:
 
   * TODO
 
-2. Inherit from AncestryDocument or OrderedAncestryDocument.
+2. Inherit from `AncestryDocument` or `OrderedAncestryDocument`.
 
         public class TreeNode : OrderedAncestryDocument<TreeNode>
         {
@@ -66,7 +66,7 @@ To navigate an Ancestry model, use the following methods on any instance / recor
     IsChildless             Returns true is the record has no childen, false otherwise
     Siblings                Scopes the model on siblings of the record, the record itself is not included
     SiblingIDs              Returns a list of sibling IDs
-	SiblingsAndSelf         Scopes the model on siblings of the record, the record itself is included
+    SiblingsAndSelf         Scopes the model on siblings of the record, the record itself is included
     HasSiblings             Returns true if the record's parent has more than one child
     IsOnlyChild             Returns true if the record is the only child of its parent
     Descendants             Scopes the model on direct and indirect children of the record
@@ -106,14 +106,9 @@ checked for existence. For example:
     node.Subtree.OrderByDescending(n => n.Name).Take(10)
     node.Descendants.Count()
 
-For convenience, a few `IQueryable` extension methods are included:
+For convenience, one `IQueryable` extension method is included:
 
     Roots()                 Root nodes
-    AncestorsOf(node)       Ancestors of node, node can be either a record or an ID
-    ChildrenOf(node)        Children of node, node can be either a record or an ID
-    DescendantsOf(node)     Descendants of node, node can be either a record or an ID
-    SubtreeOf(node)         Subtree of node, node can be either a record or an ID
-    SiblingsOf(node)        Siblings of node, node can be either a record or an ID
 
 ## Selecting nodes by depth
 
@@ -164,7 +159,7 @@ and provide additional utility methods:
     node.AtTop
     node.AtBottom
 
-Mongoid-Ancestry will manage the `Position` field automatically. If you delete a node, or move it to a different part of the tree,
+Ormongo-Ancestry will manage the `Position` field automatically. If you delete a node, or move it to a different part of the tree,
 its previous siblings will be moved up, if necessary. When you create a node and don't set its position, it will be assigned 
 a default position.
 
