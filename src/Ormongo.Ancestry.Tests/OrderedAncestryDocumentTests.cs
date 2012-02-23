@@ -211,8 +211,8 @@ namespace Ormongo.Ancestry.Tests
 			childNode1.Destroy();
 
 			// Assert.
-			Assert.That(TreeNode.FindOneByID(childNode2.ID).Position, Is.EqualTo(0));
-			Assert.That(TreeNode.FindOneByID(childNode3.ID).Position, Is.EqualTo(1));
+			Assert.That(TreeNode.Find(childNode2.ID).Position, Is.EqualTo(0));
+			Assert.That(TreeNode.Find(childNode3.ID).Position, Is.EqualTo(1));
 		}
 
 		[Test]
@@ -230,9 +230,9 @@ namespace Ormongo.Ancestry.Tests
 			childNode2.Save();
 
 			// Assert.
-			Assert.That(TreeNode.FindOneByID(childNode1.ID).Position, Is.EqualTo(0));
-			Assert.That(TreeNode.FindOneByID(childNode2.ID).Position, Is.EqualTo(0));
-			Assert.That(TreeNode.FindOneByID(childNode3.ID).Position, Is.EqualTo(1));
+			Assert.That(TreeNode.Find(childNode1.ID).Position, Is.EqualTo(0));
+			Assert.That(TreeNode.Find(childNode2.ID).Position, Is.EqualTo(0));
+			Assert.That(TreeNode.Find(childNode3.ID).Position, Is.EqualTo(1));
 		}
 
 		#endregion

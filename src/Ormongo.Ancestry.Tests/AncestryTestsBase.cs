@@ -14,6 +14,7 @@ namespace Ormongo.Ancestry.Tests
 		[TearDown]
 		public virtual void TearDown()
 		{
+			FileSystemNode.Drop();
 			TreeNode.Drop();
 		}
 

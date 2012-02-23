@@ -470,7 +470,7 @@ namespace Ormongo.Ancestry.Tests
 			grandChildNode.Save();
 
 			// Assert.
-			greatGrandChildNode = TreeNode.FindOneByID(greatGrandChildNode.ID);
+			greatGrandChildNode = TreeNode.Find(greatGrandChildNode.ID);
 			Assert.That(greatGrandChildNode.AncestorIDs, Contains.Item(childNode2.ID));
 		}
 
@@ -487,8 +487,8 @@ namespace Ormongo.Ancestry.Tests
 			childNode.Destroy();
 
 			// Assert.
-			Assert.That(TreeNode.FindOneByID(childNode.ID), Is.Null);
-			Assert.That(TreeNode.FindOneByID(grandChildNode.ID), Is.Null);
+			Assert.That(TreeNode.Find(childNode.ID), Is.Null);
+			Assert.That(TreeNode.Find(grandChildNode.ID), Is.Null);
 		}
 
 		[Test, ExpectedException]
@@ -516,8 +516,8 @@ namespace Ormongo.Ancestry.Tests
 			childNode.Destroy();
 
 			// Assert.
-			Assert.That(TreeNode.FindOneByID(childNode.ID), Is.Null);
-			Assert.That(TreeNode.FindOneByID(grandChildNode.ID).Parent, Is.Null);
+			Assert.That(TreeNode.Find(childNode.ID), Is.Null);
+			Assert.That(TreeNode.Find(grandChildNode.ID).Parent, Is.Null);
 		}
 
 		[Test]
@@ -530,7 +530,7 @@ namespace Ormongo.Ancestry.Tests
 			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
 
 			// Act.
-			var retrievedNode = TreeNode.FindAll().Single(d => d.AncestryDepth == 2);
+			var retrievedNode = TreeNode.All().Single(d => d.AncestryDepth == 2);
 
 			// Assert.
 			Assert.That(retrievedNode.ID, Is.EqualTo(grandChildNode.ID));
@@ -560,7 +560,7 @@ namespace Ormongo.Ancestry.Tests
 			});
 
 			// Assert.
-			Assert.That(FileSystemNode.FindAll().ToList(), Has.Count.EqualTo(3));
+			Assert.That(FileSystemNode.All().ToList(), Has.Count.EqualTo(3));
 		}
 
 		[Test]

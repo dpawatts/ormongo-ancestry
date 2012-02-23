@@ -11,7 +11,7 @@ namespace Ormongo.Ancestry
 	public abstract class AncestryDocument<T> : Document<T>
 		where T : AncestryDocument<T>
 	{
-		#region Static configuration
+		#region Static
 
 		/// <summary>
 		/// Configures what to do with children of a node that is destroyed. Defaults to Destroy.
@@ -73,7 +73,7 @@ namespace Ormongo.Ancestry
 
 		public IDepthQueryable<T> Ancestors
 		{
-			get { return new DepthQueryable<T>(Find(d => AncestorIDs.Contains(d.ID)), Depth); }
+			get { return new DepthQueryable<T>(Where(d => AncestorIDs.Contains(d.ID)), Depth); }
 		}
 
 		public IEnumerable<ObjectId> AncestorsAndSelfIDs
@@ -83,7 +83,7 @@ namespace Ormongo.Ancestry
 
 		public IDepthQueryable<T> AncestorsAndSelf
 		{
-			get { return new DepthQueryable<T>(Find(d => AncestorsAndSelfIDs.Contains(d.ID)), Depth); }
+			get { return new DepthQueryable<T>(Where(d => AncestorsAndSelfIDs.Contains(d.ID)), Depth); }
 		}
 
 		public int Depth
@@ -98,15 +98,23 @@ namespace Ormongo.Ancestry
 		[BsonIgnore]
 		public T Parent
 		{
-			get { return (ParentID == ObjectId.Empty) ? null : FindOneByID(ParentID); }
-			set { Ancestry = (value == null) ? null : value.ChildAncestry; }
+			get { return (ParentID == ObjectId.Empty) ? null : Find(ParentID); }
+			set
+			{
+				if (!OnBeforeMove(value))
+					return;
+
+				Ancestry = (value == null) ? null : value.ChildAncestry;
+
+				OnAfterMove(value);
+			}
 		}
 
 		[BsonIgnore]
 		public ObjectId ParentID
 		{
 			get { return AncestorIDs.Any() ? AncestorIDs.Last() : ObjectId.Empty; }
-			set { Parent = (value == ObjectId.Empty) ? null : FindOneByID(value); }
+			set { Parent = (value == ObjectId.Empty) ? null : Find(value); }
 		}
 
 		#endregion
@@ -120,7 +128,7 @@ namespace Ormongo.Ancestry
 
 		public T Root
 		{
-			get { return (RootID == ID) ? (T) this : FindOneByID(RootID); }
+			get { return (RootID == ID) ? (T) this : Find(RootID); }
 		}
 
 		public bool IsRoot
@@ -137,7 +145,7 @@ namespace Ormongo.Ancestry
 			get
 			{
 				return new Relation<T>(
-					Find(d => d.Ancestry == ChildAncestry),
+					Where(d => d.Ancestry == ChildAncestry),
 					d => d.Ancestry = ChildAncestry);
 			}
 		}
@@ -163,7 +171,7 @@ namespace Ormongo.Ancestry
 
 		public IQueryable<T> SiblingsAndSelf
 		{
-			get { return Find(d => d.Ancestry == Ancestry); }
+			get { return Where(d => d.Ancestry == Ancestry); }
 		}
 
 		public IQueryable<T> Siblings
@@ -202,7 +210,7 @@ namespace Ormongo.Ancestry
 
 		public IDepthQueryable<T> DescendantsAndSelf
 		{
-			get { return new DepthQueryable<T>(Find(d => d.ID == ID || d.Ancestry.StartsWith(ChildAncestry) || d.Ancestry == ChildAncestry), Depth); }
+			get { return new DepthQueryable<T>(Where(d => d.ID == ID || d.Ancestry.StartsWith(ChildAncestry) || d.Ancestry == ChildAncestry), Depth); }
 		}
 
 		public IEnumerable<ObjectId> DescendantsAndSelfIDs
@@ -212,7 +220,7 @@ namespace Ormongo.Ancestry
 
 		public IDepthQueryable<T> Descendants
 		{
-			get { return new DepthQueryable<T>(Find(d => d.Ancestry.StartsWith(ChildAncestry) || d.Ancestry == ChildAncestry), Depth); }
+			get { return new DepthQueryable<T>(Where(d => d.Ancestry.StartsWith(ChildAncestry) || d.Ancestry == ChildAncestry), Depth); }
 		}
 
 		public IEnumerable<ObjectId> DescendantIDs
@@ -224,18 +232,28 @@ namespace Ormongo.Ancestry
 
 		#region Callbacks
 
-		protected override void AfterFind()
+		protected virtual bool OnBeforeMove(T newParent)
 		{
-			AncestryWas = _ancestry;
-			base.AfterFind();
+			return ExecuteCancellableObservers<IAncestryObserver<T>>(o => o.BeforeMove((T) this, newParent));
 		}
 
-		protected override void OnBeforeSave()
+		protected virtual void OnAfterMove(T newParent)
+		{
+			ExecuteObservers<IAncestryObserver<T>>(o => o.AfterMove((T) this, newParent));
+		}
+
+		protected override void OnAfterFind()
+		{
+			AncestryWas = _ancestry;
+			base.OnAfterFind();
+		}
+
+		protected override bool OnBeforeSave()
 		{
 			UpdateDescendantsWithNewAncestry();
 			if (CacheDepth)
 				AncestryDepth = Depth;
-			base.OnBeforeSave();
+			return base.OnBeforeSave();
 		}
 
 		protected override void OnAfterSave()
@@ -245,10 +263,10 @@ namespace Ormongo.Ancestry
 			base.OnAfterSave();
 		}
 
-		protected override void OnBeforeDestroy()
+		protected override bool OnBeforeDestroy()
 		{
 			ApplyOrphanStrategy();
-			base.OnBeforeDestroy();
+			return base.OnBeforeDestroy();
 		}
 
 		private bool _disableAncestryCallbacks;

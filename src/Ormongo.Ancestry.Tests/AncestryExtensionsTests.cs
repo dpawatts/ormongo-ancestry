@@ -15,7 +15,7 @@ namespace Ormongo.Ancestry.Tests
 			var rootNode2 = CreateTreeNode(null, "Root2");
 
 			// Act.
-			var result = TreeNode.FindAll().Roots().ToList();
+			var result = TreeNode.All().Roots().ToList();
 
 			// Assert.
 			Assert.That(result, Has.Count.EqualTo(2));
@@ -26,31 +26,31 @@ namespace Ormongo.Ancestry.Tests
 		[Test, ExpectedException]
 		public void BeforeDepthIsNotAvailableWhenDepthCachingIsDisabled()
 		{
-			TreeNode.FindAll().BeforeDepth(0);
+			TreeNode.All().BeforeDepth(0);
 		}
 
 		[Test, ExpectedException]
 		public void ToDepthIsNotAvailableWhenDepthCachingIsDisabled()
 		{
-			TreeNode.FindAll().ToDepth(0);
+			TreeNode.All().ToDepth(0);
 		}
 
 		[Test, ExpectedException]
 		public void AtDepthIsNotAvailableWhenDepthCachingIsDisabled()
 		{
-			TreeNode.FindAll().AtDepth(0);
+			TreeNode.All().AtDepth(0);
 		}
 
 		[Test, ExpectedException]
 		public void FromDepthIsNotAvailableWhenDepthCachingIsDisabled()
 		{
-			TreeNode.FindAll().FromDepth(0);
+			TreeNode.All().FromDepth(0);
 		}
 
 		[Test, ExpectedException]
 		public void AfterDepthIsNotAvailableWhenDepthCachingIsDisabled()
 		{
-			TreeNode.FindAll().AfterDepth(0);
+			TreeNode.All().AfterDepth(0);
 		}
 
 		[Test]
@@ -63,7 +63,7 @@ namespace Ormongo.Ancestry.Tests
 			CreateTreeNode(childNode, "GrandChild");
 
 			// Act.
-			var result = TreeNode.FindAll().BeforeDepth(2).ToList();
+			var result = TreeNode.All().BeforeDepth(2).ToList();
 
 			// Assert.
 			Assert.That(result, Has.Count.EqualTo(2));
@@ -99,7 +99,7 @@ namespace Ormongo.Ancestry.Tests
 			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
 
 			// Act.
-			var result = TreeNode.FindAll().ToDepth(2).ToList();
+			var result = TreeNode.All().ToDepth(2).ToList();
 
 			// Assert.
 			Assert.That(result, Has.Count.EqualTo(3));
@@ -138,7 +138,7 @@ namespace Ormongo.Ancestry.Tests
 			var grandChildNode2 = CreateTreeNode(childNode, "GrandChild2");
 
 			// Act.
-			var result = TreeNode.FindAll().AtDepth(2).ToList();
+			var result = TreeNode.All().AtDepth(2).ToList();
 
 			// Assert.
 			Assert.That(result, Has.Count.EqualTo(2));
@@ -176,7 +176,7 @@ namespace Ormongo.Ancestry.Tests
 			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
 
 			// Act.
-			var result = TreeNode.FindAll().FromDepth(1).ToList();
+			var result = TreeNode.All().FromDepth(1).ToList();
 
 			// Assert.
 			Assert.That(result, Has.Count.EqualTo(2));
@@ -213,7 +213,7 @@ namespace Ormongo.Ancestry.Tests
 			var grandChildNode = CreateTreeNode(childNode, "GrandChild");
 
 			// Act.
-			var result = TreeNode.FindAll().AfterDepth(1).ToList();
+			var result = TreeNode.All().AfterDepth(1).ToList();
 
 			// Assert.
 			Assert.That(result, Has.Count.EqualTo(1));

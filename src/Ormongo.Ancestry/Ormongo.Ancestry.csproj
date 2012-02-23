@@ -48,6 +48,8 @@
   <ItemGroup>
     <Compile Include="AncestryDocument.cs" />
     <Compile Include="AncestryExtensions.cs" />
+    <Compile Include="AncestryObserver.cs" />
+    <Compile Include="IAncestryObserver.cs" />
     <Compile Include="Internal\DepthQueryable.cs" />
     <Compile Include="IDepthQueryable.cs" />
     <Compile Include="OrderedAncestryDocument.cs" />

@@ -196,18 +196,18 @@ namespace Ormongo.Ancestry
 
 		#region Callbacks
 
-		protected override void AfterFind()
+		protected override void OnAfterFind()
 		{
 			_positionWas = _position;
-			base.AfterFind();
+			base.OnAfterFind();
 		}
 
-		protected override void OnBeforeSave()
+		protected override bool OnBeforeSave()
 		{
-			base.OnBeforeSave();
 			AssignDefaultPosition();
 			if (SiblingRepositionRequired)
 				RepositionFormerSiblings();
+			return base.OnBeforeSave();
 		}
 
 		protected override void OnAfterSave()
@@ -236,7 +236,7 @@ namespace Ormongo.Ancestry
 
 		private void RepositionFormerSiblings()
 		{
-			var formerSiblings = Find(d => d.Ancestry == AncestryWas)
+			var formerSiblings = Where(d => d.Ancestry == AncestryWas)
 				.Where(d => d.Position > _positionWas)
 				.Where(d => d.ID != ID);
 			foreach (var sibling in formerSiblings)
