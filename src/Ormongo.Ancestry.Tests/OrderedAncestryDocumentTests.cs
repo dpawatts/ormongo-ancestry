@@ -116,6 +116,56 @@ namespace Ormongo.Ancestry.Tests
 			Assert.That(children[2].ID, Is.EqualTo(childNode2.ID));
 		}
 
+		[Test]
+		public void MoveToHigherPositionShiftsOtherSiblingsDown()
+		{
+			// Arrange.
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode1 = CreateTreeNode(rootNode, "Child1");
+			var childNode2 = CreateTreeNode(rootNode, "Child2");
+			var childNode3 = CreateTreeNode(rootNode, "Child3");
+			var childNode4 = CreateTreeNode(rootNode, "Child4");
+
+			// Act.
+			childNode3.MoveToPosition(1);
+
+			// Assert.
+			var children = rootNode.Children.ToList();
+			Assert.That(children[0].ID, Is.EqualTo(childNode1.ID));
+			Assert.That(children[0].Position, Is.EqualTo(0));
+			Assert.That(children[1].ID, Is.EqualTo(childNode3.ID));
+			Assert.That(children[1].Position, Is.EqualTo(1));
+			Assert.That(children[2].ID, Is.EqualTo(childNode2.ID));
+			Assert.That(children[2].Position, Is.EqualTo(2));
+			Assert.That(children[3].ID, Is.EqualTo(childNode4.ID));
+			Assert.That(children[3].Position, Is.EqualTo(3));
+		}
+
+		[Test]
+		public void MoveToLowerPositionShiftsOtherSiblingsUp()
+		{
+			// Arrange.
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode1 = CreateTreeNode(rootNode, "Child1");
+			var childNode2 = CreateTreeNode(rootNode, "Child2");
+			var childNode3 = CreateTreeNode(rootNode, "Child3");
+			var childNode4 = CreateTreeNode(rootNode, "Child4");
+
+			// Act.
+			childNode2.MoveToPosition(2);
+
+			// Assert.
+			var children = rootNode.Children.ToList();
+			Assert.That(children[0].ID, Is.EqualTo(childNode1.ID));
+			Assert.That(children[0].Position, Is.EqualTo(0));
+			Assert.That(children[1].ID, Is.EqualTo(childNode3.ID));
+			Assert.That(children[1].Position, Is.EqualTo(1));
+			Assert.That(children[2].ID, Is.EqualTo(childNode2.ID));
+			Assert.That(children[2].Position, Is.EqualTo(2));
+			Assert.That(children[3].ID, Is.EqualTo(childNode4.ID));
+			Assert.That(children[3].Position, Is.EqualTo(3));
+		}
+
 		#region Callbacks
 
 		[Test]

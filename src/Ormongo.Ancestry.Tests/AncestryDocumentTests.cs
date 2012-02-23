@@ -544,39 +544,39 @@ namespace Ormongo.Ancestry.Tests
 		public void InheritedClassesAreStoredInTheSameCollection()
 		{
 			// Act.
-			var rootNode = TreeNode.Create(new TreeNode
+			var rootNode = FileSystemNode.Create(new FolderNode
 			{
 				Name = "Root"
 			});
-			var folderNode = TreeNode.Create(new FolderNode
+			var folderNode = FileSystemNode.Create(new FolderNode
 			{
 				Parent = rootNode,
 				Name = "Child"
 			});
-			TreeNode.Create(new FileNode
+			FileSystemNode.Create(new FileNode
 			{
 				Parent = folderNode,
 				Name = "GrandChild"
 			});
 
 			// Assert.
-			Assert.That(TreeNode.FindAll().ToList(), Has.Count.EqualTo(3));
+			Assert.That(FileSystemNode.FindAll().ToList(), Has.Count.EqualTo(3));
 		}
 
 		[Test]
 		public void AncestryProxyOperatesOnWholeInheritanceTree()
 		{
 			// Arrange.
-			var rootNode = TreeNode.Create(new TreeNode
+			var rootNode = FileSystemNode.Create(new FolderNode
 			{
 				Name = "Root"
 			});
-			var folderNode = TreeNode.Create(new FolderNode
+			var folderNode = FileSystemNode.Create(new FolderNode
 			{
 				Parent = rootNode,
 				Name = "Child"
 			});
-			var fileNode = TreeNode.Create(new FileNode
+			var fileNode = FileSystemNode.Create(new FileNode
 			{
 				Parent = folderNode,
 				Name = "GrandChild"
@@ -587,6 +587,32 @@ namespace Ormongo.Ancestry.Tests
 
 			// Assert.
 			Assert.That(root.ID, Is.EqualTo(rootNode.ID));
+		}
+
+		[Test]
+		public void CanSetAndGetParentUsingInheritedClasses()
+		{
+			// Arrange.
+			var rootNode = FileSystemNode.Create(new FolderNode
+			{
+				Name = "Root"
+			});
+			var folderNode = FileSystemNode.Create(new FolderNode
+			{
+				Parent = rootNode,
+				Name = "Child"
+			});
+			var fileNode = FileSystemNode.Create(new FileNode
+			{
+				Parent = folderNode,
+				Name = "GrandChild"
+			});
+
+			// Act.
+			var result = fileNode.Parent;
+
+			// Assert.
+			Assert.That(result, Is.EqualTo(folderNode));
 		}
 
 		#endregion

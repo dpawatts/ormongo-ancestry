@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Ormongo.Ancestry
 {
@@ -156,6 +157,38 @@ namespace Ormongo.Ancestry
 				foreach (var sibling in other.HigherSiblings.Where(d => d.Position > Position))
 					sibling.Inc(s => s.Position, -1);
 				other.Inc(s => s.Position, 1);
+				Position = newPosition;
+				Save();
+			}
+		}
+
+		/// <summary>
+		/// Moves this node to a specific position, and (if necessary)
+		/// shifts siblings down to make room.
+		/// </summary>
+		/// <param name="newPosition"></param>
+		public void MoveToPosition(int newPosition)
+		{
+			if (newPosition < 0 || newPosition >= SiblingsAndSelf.Count())
+				throw new ArgumentOutOfRangeException("newPosition");
+
+			if (Position == newPosition)
+				return;
+
+			// If we're moving it up...
+			if (newPosition < Position)
+			{
+				// Shift siblings between the new position and the current position down.
+				foreach (var sibling in HigherSiblings.Where(d => d.Position >= newPosition))
+					sibling.Inc(s => s.Position, 1);
+				Position = newPosition;
+				Save();
+			}
+			else // Moving it down...
+			{
+				// Shift siblings between the current position and the new position up.
+				foreach (var sibling in LowerSiblings.Where(d => d.Position <= newPosition))
+					sibling.Inc(s => s.Position, -1);
 				Position = newPosition;
 				Save();
 			}

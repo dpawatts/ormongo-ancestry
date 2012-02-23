@@ -5,12 +5,17 @@ namespace Ormongo.Ancestry.Tests
 		public string Name { get; set; }
 	}
 
-	public class FolderNode : TreeNode
+	public abstract class FileSystemNode : OrderedAncestryDocument<FileSystemNode>
+	{
+		public string Name { get; set; }
+	}
+
+	public class FolderNode : FileSystemNode
 	{
 
 	}
 
-	public class FileNode : TreeNode
+	public class FileNode : FileSystemNode
 	{
 
 	}
