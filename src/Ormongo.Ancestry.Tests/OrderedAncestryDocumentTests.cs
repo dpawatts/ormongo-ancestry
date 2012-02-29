@@ -235,6 +235,24 @@ namespace Ormongo.Ancestry.Tests
 			Assert.That(TreeNode.Find(childNode3.ID).Position, Is.EqualTo(1));
 		}
 
+		[Test]
+		public void SaveLoadAndSaveMaintainsPosition()
+		{
+			// Arrange.
+			var rootNode = CreateTreeNode(null, "Root");
+			var childNode1 = CreateTreeNode(rootNode, "Child1");
+			var childNode2 = CreateTreeNode(rootNode, "Child2");
+			var childNode3 = CreateTreeNode(rootNode, "Child3");
+
+			// Act.
+			var retrievedChildNode1 = TreeNode.Find(childNode1.ID);
+			retrievedChildNode1.Save();
+			retrievedChildNode1 = TreeNode.Find(childNode1.ID);
+
+			// Assert.
+			Assert.That(TreeNode.Find(retrievedChildNode1.ID).Position, Is.EqualTo(0));
+		}
+
 		#endregion
 	}
 }

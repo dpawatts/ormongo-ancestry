@@ -27,22 +27,9 @@ namespace Ormongo.Ancestry
 
 		#region Instance
 
-		private string _ancestry;
-		protected string AncestryWas { get; private set; }
-		protected bool AncestryChanged { get; private set; }
-
 		#region Persisted
 
-		public string Ancestry
-		{
-			get { return _ancestry; }
-			set
-			{
-				_ancestry = value;
-				AncestryChanged = true;
-			}
-		}
-
+		public string Ancestry { get; set; }
 		public int AncestryDepth { get; set; }
 
 		#endregion
@@ -58,9 +45,10 @@ namespace Ormongo.Ancestry
 				if (IsNewRecord)
 					throw new InvalidOperationException("No child ancestry for new record. Save record before performing tree operations.");
 
-				return (string.IsNullOrEmpty(AncestryWas))
+				string originalAncestryValue = GetOriginalValue(d => d.Ancestry);
+				return (string.IsNullOrEmpty(originalAncestryValue))
 					? ID.ToString()
-					: String.Format("{0}/{1}", AncestryWas, ID);
+					: String.Format("{0}/{1}", originalAncestryValue, ID);
 			}
 		}
 
@@ -242,25 +230,12 @@ namespace Ormongo.Ancestry
 			ExecuteObservers<IAncestryObserver<T>>(o => o.AfterMove((T) this, newParent));
 		}
 
-		protected override void OnAfterFind()
-		{
-			AncestryWas = _ancestry;
-			base.OnAfterFind();
-		}
-
 		protected override bool OnBeforeSave()
 		{
 			UpdateDescendantsWithNewAncestry();
 			if (CacheDepth)
 				AncestryDepth = Depth;
 			return base.OnBeforeSave();
-		}
-
-		protected override void OnAfterSave()
-		{
-			AncestryWas = _ancestry;
-			AncestryChanged = false;
-			base.OnAfterSave();
 		}
 
 		protected override bool OnBeforeDestroy()
@@ -284,7 +259,7 @@ namespace Ormongo.Ancestry
 				return;
 
 			// Skip this if it's a new record or ancestry wasn't updated.
-			if (IsNewRecord || !AncestryChanged)
+			if (IsNewRecord || !HasValueChanged(d => d.Ancestry))
 				return;
 
 			// For each descendant...

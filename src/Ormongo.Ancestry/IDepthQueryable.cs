@@ -2,7 +2,7 @@
 
 namespace Ormongo.Ancestry
 {
-	public interface IDepthQueryable<T> : IQueryable<T>
+	public interface IDepthQueryable<out T> : IQueryable<T>
 	{
 		int Depth { get; }
 	}

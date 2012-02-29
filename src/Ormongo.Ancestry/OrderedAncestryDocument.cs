@@ -15,17 +15,12 @@ namespace Ormongo.Ancestry
 
 		#endregion
 
-		private int _position, _positionWas;
-		private bool _positionChanged;
+		private int? _position;
 
 		public int Position
 		{
-			get { return _position; }
-			set
-			{
-				_position = value;
-				_positionChanged = true;
-			}
+			get { return _position.GetValueOrDefault(); }
+			set { _position = value; }
 		}
 
 		/// <summary>
@@ -196,25 +191,12 @@ namespace Ormongo.Ancestry
 
 		#region Callbacks
 
-		protected override void OnAfterFind()
-		{
-			_positionWas = _position;
-			base.OnAfterFind();
-		}
-
 		protected override bool OnBeforeSave()
 		{
 			AssignDefaultPosition();
 			if (SiblingRepositionRequired)
 				RepositionFormerSiblings();
 			return base.OnBeforeSave();
-		}
-
-		protected override void OnAfterSave()
-		{
-			_positionWas = _position;
-			_positionChanged = false;
-			base.OnAfterSave();
 		}
 
 		protected override void OnAfterDestroy()
@@ -231,13 +213,15 @@ namespace Ormongo.Ancestry
 
 		private bool SiblingRepositionRequired
 		{
-			get { return AncestryChanged && IsPersisted; }
+			get { return HasValueChanged(d => d.Ancestry) && IsPersisted; }
 		}
 
 		private void RepositionFormerSiblings()
 		{
-			var formerSiblings = Where(d => d.Ancestry == AncestryWas)
-				.Where(d => d.Position > _positionWas)
+			var originalAncestry = GetOriginalValue(ad => ad.Ancestry);
+			var originalPosition = GetOriginalValue(ad => ad.Position);
+			var formerSiblings = Where(d => d.Ancestry == originalAncestry)
+				.Where(d => d.Position > originalPosition)
 				.Where(d => d.ID != ID);
 			foreach (var sibling in formerSiblings)
 				sibling.Inc(s => s.Position, -1);
@@ -245,7 +229,8 @@ namespace Ormongo.Ancestry
 
 		private void AssignDefaultPosition()
 		{
-			if (_positionChanged && !AncestryChanged)
+			// Skip this if the position is already set and the node wasn't moved.
+			if (_position != null && !HasValueChanged(d => d.Ancestry))
 				return;
 
 			if (!Siblings.Any())
