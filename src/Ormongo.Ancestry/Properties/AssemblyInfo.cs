@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Ormongo.Ancestry")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyDescription("Ancestry extensions for Ormongo")]
+[assembly: AssemblyConfiguration("Retail")]
+[assembly: AssemblyCompany("Sound in Theory Ltd")]
 [assembly: AssemblyProduct("Ormongo.Ancestry")]
-[assembly: AssemblyCopyright("Copyright ©  2012")]
+[assembly: AssemblyCopyright("Copyright ©2012 Sound in Theory Ltd")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
